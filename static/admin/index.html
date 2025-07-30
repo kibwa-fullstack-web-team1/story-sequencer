@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>가족 이야기 관리자</title>
+  <link rel="stylesheet" href="/static/admin/style.css" />
+</head>
+<body>
+  <div class="panel-wrapper">
+    <!-- Left Panel : Story Registration -->
+    <section class="panel panel--left">
+      <div class="panel__header">
+        <h2>새 이야기 등록</h2>
+      </div>
+      <div class="panel__content">
+        <form id="story-form" class="flex flex-col gap-16">
+          <div class="form-group">
+            <label for="title" class="form-label">이야기 제목</label>
+            <input type="text" id="title" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="content" class="form-label">이야기 내용</label>
+            <textarea id="content" class="form-control" style="height:120px" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="image" class="form-label">가족 사진 업로드</label>
+            <input type="file" id="image" class="form-control" accept="image/*" />
+            <div id="image-preview" class="image-preview" style="display: none;">
+              <img id="preview-img" src="" alt="미리보기" />
+              <button type="button" id="remove-image" class="btn btn--sm btn--danger">삭제</button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn--primary">등록하기</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Center Panel : Story Management -->
+    <section class="panel panel--center">
+      <div class="panel__header">
+        <h2>등록된 이야기 관리</h2>
+        <div id="stats" class="flex gap-8 mt-8"></div>
+      </div>
+      <div class="panel__content">
+        <div class="filter-controls">
+          <input id="searchInput" type="search" placeholder="검색..." class="form-control" />
+        </div>
+        <div id="story-list" class="flex flex-col gap-16"></div>
+      </div>
+    </section>
+
+    <!-- Right Panel : Elderly Preview -->
+    <section class="panel panel--right">
+      <div class="panel__header">
+        <h2>노인용 화면 미리보기</h2>
+      </div>
+      <div class="panel__content" id="preview"></div>
+    </section>
+  </div>
+
+  <script src="/static/admin/app.js"></script>
+</body>
+</html>

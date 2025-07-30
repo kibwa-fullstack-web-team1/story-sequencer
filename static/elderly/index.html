@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기억의 정원 - 단어 순서 맞추기</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="container">
+                <h1 class="app-title">기억의 정원</h1>
+            </div>
+        </header>
+        <main class="main-content">
+            <div class="container">
+                <div class="three-panel-layout">
+                    <div class="panel panel--left">
+                        <div class="card">
+                            <div class="card__header">
+                                <h2>문장 맞추기</h2>
+                            </div>
+                            <div class="card__body">
+                                <div class="story-context">
+                                    <p id="fullSentence" style="font-weight:bold;"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel--center">
+                        <div class="activity-area">
+                            <div class="activity-section">
+                                <h3 class="section-title">섞인 단어 조각들</h3>
+                                <div class="word-fragments" id="shuffledWords"></div>
+                            </div>
+                            <div class="activity-section">
+                                <h3 class="section-title">올바른 순서</h3>
+                                <div class="word-sequence" id="correctOrder"></div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn--primary btn--lg" id="checkOrderBtn">순서 확인하기</button>
+                                <button class="btn btn--secondary btn--lg" id="hintBtn">힌트 보기</button>
+                                <button class="btn btn--outline btn--lg" id="resetBtn">다시 시작</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel--right">
+                        <div class="card">
+                            <div class="card__header">
+                                <h2>진행 상황</h2>
+                            </div>
+                            <div class="card__body">
+                                <div class="progress-section">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="progressFill"></div>
+                                    </div>
+                                    <p class="progress-text" id="progressText">0/0 단어 배치됨</p>
+                                </div>
+                                <div class="feedback-section">
+                                    <div class="feedback-message" id="feedbackMessage">
+                                        <p>단어를 드래그하여 올바른 순서로 배치해 보세요!</p>
+                                    </div>
+                                </div>
+                                <div class="timer-section" id="timerSection">
+                                    <h4>소요 시간</h4>
+                                    <div class="timer" id="timer">00:00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>축하합니다! 🎉</h2>
+            </div>
+            <div class="modal-body">
+                <p>단어 순서를 정확히 맞추셨습니다!</p>
+                <div class="completion-stats">
+                    <p>소요 시간: <span id="finalTime">00:00</span></p>
+                    <p>시도 횟수: <span id="attempts">1</span>회</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--primary btn--lg" id="playAgainBtn">다시 하기</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html> 

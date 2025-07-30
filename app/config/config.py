@@ -11,9 +11,7 @@ class Config(object):
     # 환경변수에서 로드
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
     STORY_DATABASE_URL = os.environ.get(
-        'DATABASE_URL',
-        # 'postgresql://neondb_owner:npg_JmHTASslW8B6@ep-summer-frost-a1ojuc9i-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
-        # 'postgresql://neondb_owner:npg_JmHTASslW8B6@ep-summer-frost-a1ojuc9i.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+        'DATABASE_URL'
     )
 
     # 로깅 설정

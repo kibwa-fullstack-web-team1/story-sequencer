@@ -7,9 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    # "postgresql://neondb_owner:npg_JmHTASslW8B6@ep-summer-frost-a1ojuc9i.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-    # "postgresql://neondb_owner:npg_JmHTASslW8B6@ep-summer-frost-a1ojuc9i-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    "DATABASE_URL"
 )
 
 # 연결 풀 설정으로 SSL 연결 문제 해결

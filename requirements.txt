@@ -7,4 +7,5 @@ python-dotenv==1.0.0
 pydantic==2.5.0
 boto3==1.39.4
 python-multipart==0.0.6
-httpx==0.25.2 
+httpx==0.25.2
+PyJWT

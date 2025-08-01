@@ -6,6 +6,7 @@ from app.config.config import config_by_name
 from app.utils.logger import Logger
 from app.common.response import register_error_handlers
 from app.api import router as api_router
+from app.api.internal_router import router as internal_api_router # internal_router 임포트
 import os
 
 def create_app(config_name):
@@ -95,6 +96,7 @@ def create_app(config_name):
         return {"status": "ok", "service": "story-api", "port": 8011}
     
     app.include_router(api_router, prefix=config.APP_PREFIX)
+    app.include_router(internal_api_router) # 내부 API 라우터 포함
     register_error_handlers(app)
     
     return app
@@ -104,4 +106,4 @@ def load_dynamic_config(config):
     return None
 
 # 환경변수로 CORE_MODULES_AVAILABLE 설정
-CORE_MODULES_AVAILABLE = os.getenv('CORE_MODULES_AVAILABLE', 'true').lower() == 'true' 
+CORE_MODULES_AVAILABLE = os.getenv('CORE_MODULES_AVAILABLE', 'true').lower() == 'true'

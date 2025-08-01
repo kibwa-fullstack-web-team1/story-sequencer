@@ -3,6 +3,9 @@ from app.utils.functions import validate_story_content, validate_story_title
 from app.common.response import ValidationError
 from fastapi import Request
 import logging
+from sqlalchemy.orm import Session
+from datetime import datetime
+from app.models.story import Story # Story 모델 임포트
 
 logger = logging.getLogger(__name__)
 
@@ -85,4 +88,18 @@ def delete_story_helper(request: Request, story_id):
         
     except Exception as e:
         logger.error(f"Error in delete_story_helper: {e}")
-        raise 
+        raise
+
+def get_internal_stories_helper(db: Session, skip: int = 0, limit: int = 100, updated_after: str = None):
+    """내부 서비스용 이야기 목록 조회 헬퍼 (updated_after 필터링 포함)"""
+    try:
+        query = db.query(Story)
+        if updated_after:
+            updated_after_dt = datetime.fromisoformat(updated_after)
+            query = query.filter(Story.updated_at >= updated_after_dt)
+        
+        return query.offset(skip).limit(limit).all()
+        
+    except Exception as e:
+        logger.error(f"Error in get_internal_stories_helper: {e}")
+        raise

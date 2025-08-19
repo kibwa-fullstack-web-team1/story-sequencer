@@ -27,4 +27,19 @@ def get_db():
     try:
         yield db
     finally:
-        db.close() 
+        db.close()
+
+def init_db():
+    """데이터베이스 테이블 초기화"""
+    try:
+        # 모든 모델을 import하여 테이블 생성
+        from app.models.game_result import GameResult, UserDifficulty
+        from app.models.story import Story
+        
+        print("데이터베이스 테이블 생성 중...")
+        Base.metadata.create_all(bind=engine)
+        print("데이터베이스 테이블 생성 완료!")
+        
+    except Exception as e:
+        print(f"데이터베이스 초기화 오류: {e}")
+        raise 

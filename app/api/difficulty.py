@@ -82,12 +82,22 @@ async def get_game_recommendation(
             message = "문장 순서 맞추기부터 시작해보세요!"
         else:
             # 기존 사용자는 성과를 바탕으로 추천
-            recommended_game_type = difficulty_service.determine_next_game_type(
-                db, user_id, user_difficulty.current_game_type
-            )
-            message = difficulty_service.get_difficulty_message(
-                user_difficulty.current_game_type, recommended_game_type
-            )
+            from app.helper.game_helper import get_recent_game_results
+            
+            total_games = len(get_recent_game_results(db, user_id, 'SENTENCE_SEQUENCE', 100)) + \
+                         len(get_recent_game_results(db, user_id, 'WORD_SEQUENCE', 100))
+            
+            if total_games < 5:  # 게임 기록이 5개 미만이면 쉬운 난이도로 시작
+                recommended_game_type = 'SENTENCE_SEQUENCE'
+                message = "게임 기록이 적어 문장 순서 맞추기부터 시작해보세요!"
+            else:
+                # 충분한 게임 기록이 있으면 성과를 바탕으로 추천
+                recommended_game_type = difficulty_service.determine_next_game_type(
+                    db, user_id, user_difficulty.current_game_type
+                )
+                message = difficulty_service.get_difficulty_message(
+                    user_difficulty.current_game_type, recommended_game_type
+                )
         
         return create_response({
             "recommended_game_type": recommended_game_type,

@@ -14,20 +14,23 @@ class Config(object):
         'DATABASE_URL'
     )
 
-    # 로깅 설정
+    # 로깅 설정 - 기본값을 현재 디렉토리 기반으로 설정
     LOG_LEVEL = logging.INFO
-    LOG_PATH = '/var/log/story-api'
+    LOG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'logs')
     LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 class ProductionConfig(Config):
     PHASE = 'production'
     LOG_LEVEL = logging.INFO
     DEBUG = False
+    # 프로덕션에서는 절대 경로 사용
+    LOG_PATH = '/var/log/story-api'
 
 class DevelopmentConfig(Config):
     DEBUG = True
     PHASE = 'development'
     LOG_LEVEL = logging.DEBUG
+    # 개발 환경에서는 상대 경로 사용
     LOG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'logs')
 
     def __init__(self):
@@ -43,6 +46,7 @@ class TestingConfig(Config):
     TESTING = True
     PHASE = 'testing'
     LOG_LEVEL = logging.DEBUG
+    # 테스트 환경에서는 상대 경로 사용
     LOG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'logs')
     STORY_DATABASE_URL = 'sqlite:///test.db'
 

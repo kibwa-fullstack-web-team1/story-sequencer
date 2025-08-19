@@ -53,16 +53,22 @@ async def get_stories_for_senior(db: Session, senior_id: int):
     
     # 1. 시니어의 보호자 목록 가져오기
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"http://localhost:8000/users/family-relationships/guardians")
+        # 특정 시니어의 보호자 목록을 가져오기
+        response = await client.get(f"http://localhost:8000/users/{senior_id}/guardians")
         if response.status_code == 200:
             guardians_data = response.json()
-            guardian_ids = [guardian['id'] for guardian in guardians_data.get('guardians', [])]
+            guardian_ids = [guardian['id'] for guardian in guardians_data]
         else:
+            # API 호출 실패 시 로그 출력
+            print(f"가족 관계 조회 실패: {response.status_code} - {response.text}")
             guardian_ids = []
     
     # 2. 자신의 이야기 + 보호자들의 이야기 가져오기
     all_user_ids = [senior_id] + guardian_ids
+    print(f"시니어 {senior_id}의 이야기 조회: 사용자 ID들 = {all_user_ids}")
+    
     stories = db.query(Story).filter(Story.user_id.in_(all_user_ids)).all()
+    print(f"총 {len(stories)}개의 이야기 발견")
     
     return stories
 
@@ -149,6 +155,56 @@ async def get_random_segment(
         "story_id": random_segment.story_id,
         "order": random_segment.order,
         "segment_text": random_segment.segment_text
+    })
+
+@router.get("/segments/sentence/random", description="랜덤 문장 단위 세그먼트 조회")
+async def get_random_sentence_segment(
+    request: Request,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user_validated)
+):
+    """사용자의 모든 이야기에서 랜덤으로 하나의 이야기를 선택하고, 그 이야기의 모든 문장들을 반환 (SENTENCE_SEQUENCE용)"""
+    # 사용자 정보 가져오기
+    user_response = await get_user_info_from_user_service(user_id)
+    user_role = user_response.get('role')
+    
+    if user_role == 'senior':
+        # 시니어인 경우: 자신의 이야기 + 보호자의 이야기
+        stories = await get_stories_for_senior(db, user_id)
+    else:
+        # 보호자인 경우: 자신이 등록한 이야기만
+        stories = db.query(Story).filter(Story.user_id == user_id).all()
+    
+    if not stories:
+        raise NotFoundError("사용자의 이야기가 없습니다.")
+    
+    # 랜덤으로 하나의 이야기 선택
+    random_story = random.choice(stories)
+    story_id = random_story.id
+    
+    # 선택된 이야기의 모든 문장들을 order 순서대로 가져오기
+    all_segments = db.query(StorySegment).filter(
+        StorySegment.story_id == story_id
+    ).order_by(StorySegment.order).all()
+    
+    if not all_segments:
+        raise NotFoundError("선택된 이야기에 사용할 수 있는 세그먼트가 없습니다.")
+    
+    # 모든 문장들을 order 순서대로 정렬
+    sorted_segments = sorted(all_segments, key=lambda x: x.order)
+    
+    return create_response({
+        "story_id": story_id,
+        "segments": [
+            {
+                "id": segment.id,
+                "order": segment.order,
+                "segment_text": segment.segment_text
+            }
+            for segment in sorted_segments
+        ],
+        "type": "sentence_sequence",
+        "total_segments": len(sorted_segments)
     })
 
 @router.put("/{story_id}", description="이야기 수정")

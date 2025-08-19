@@ -102,18 +102,26 @@ class DifficultyService:
             should_increase = self._should_increase_difficulty(db, user_id, current_game_type, recent_results)
             should_decrease = self._should_decrease_difficulty(db, user_id, current_game_type, recent_results)
             
+            # 상세 로그 추가
+            self.logger.info(f"Difficulty analysis for user {user_id}: "
+                           f"current_type={current_game_type}, "
+                           f"success_rate={success_rate:.2f}, "
+                           f"difficulty_score={difficulty_score:.2f}, "
+                           f"should_increase={should_increase}, "
+                           f"should_decrease={should_decrease}")
+            
             # 난이도 상승 조건
             if current_game_type == 'SENTENCE_SEQUENCE' and should_increase:
-                self.logger.info(f"User {user_id} ready for difficulty increase")
+                self.logger.info(f"User {user_id} ready for difficulty increase: SENTENCE_SEQUENCE -> WORD_SEQUENCE")
                 return 'WORD_SEQUENCE'
             
             # 난이도 하락 조건
             elif current_game_type == 'WORD_SEQUENCE' and should_decrease:
-                self.logger.info(f"User {user_id} needs difficulty decrease")
+                self.logger.info(f"User {user_id} needs difficulty decrease: WORD_SEQUENCE -> SENTENCE_SEQUENCE")
                 return 'SENTENCE_SEQUENCE'
             
             # 현재 난이도 유지
-            self.logger.info(f"User {user_id} maintaining current difficulty")
+            self.logger.info(f"User {user_id} maintaining current difficulty: {current_game_type}")
             return current_game_type
             
         except Exception as e:
@@ -128,11 +136,13 @@ class DifficultyService:
         # 1. 전체 성공률 조건
         success_rate = self.calculate_success_rate(db, user_id, game_type)
         if success_rate < DIFFICULTY_THRESHOLDS['EASY_TO_MEDIUM']:
+            self.logger.info(f"User {user_id} failed success rate check: {success_rate:.2f} < {DIFFICULTY_THRESHOLDS['EASY_TO_MEDIUM']}")
             return False
         
         # 2. 난이도 점수 조건
         difficulty_score = self.calculate_difficulty_score(db, user_id, game_type)
         if difficulty_score < 0.6:
+            self.logger.info(f"User {user_id} failed difficulty score check: {difficulty_score:.2f} < 0.6")
             return False
         
         # 3. 최근 성과 조건 (연속성 대신 최근 성과 중시)
@@ -141,13 +151,16 @@ class DifficultyService:
         
         # 최근 5게임 중 3게임 이상 성공하면 상승
         if recent_success_count >= 3:
+            self.logger.info(f"User {user_id} passed recent performance check: {recent_success_count}/5 games successful")
             return True
         
         # 4. 연속 성공 조건 (기존 로직 유지)
         consecutive_success, _ = self._calculate_consecutive_results(db, user_id, game_type)
         if consecutive_success >= DIFFICULTY_THRESHOLDS['CONSECUTIVE_SUCCESS_FOR_INCREASE']:
+            self.logger.info(f"User {user_id} passed consecutive success check: {consecutive_success} consecutive successes")
             return True
         
+        self.logger.info(f"User {user_id} failed all difficulty increase checks")
         return False
 
     def _should_decrease_difficulty(self, db: Session, user_id: int, game_type: str, recent_results: list) -> bool:

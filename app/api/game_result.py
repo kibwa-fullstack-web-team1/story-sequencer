@@ -19,14 +19,28 @@ async def submit_game_result(
 ):
     """게임 결과를 제출하고 저장합니다."""
     try:
+        # 요청 데이터 로깅
+        logger.info(f"Game result submission request received: {game_result.dict()}")
+        logger.info(f"Authenticated user_id: {user_id}")
+        
         # 사용자 ID 검증
+        logger.info(f"User ID validation: request_user_id={game_result.user_id}, authenticated_user_id={user_id}")
+        
         if game_result.user_id != user_id:
-            raise HTTPException(status_code=403, detail="자신의 게임 결과만 제출할 수 있습니다.")
+            logger.warning(f"User ID mismatch: request_user_id={game_result.user_id}, authenticated_user_id={user_id}")
+            
+            # 만약 요청의 user_id가 기본값(1)이라면 인증된 사용자 ID로 대체
+            if game_result.user_id == 1:
+                logger.info(f"Replacing default user_id=1 with authenticated user_id={user_id}")
+                game_result.user_id = user_id
+            else:
+                raise HTTPException(status_code=403, detail="자신의 게임 결과만 제출할 수 있습니다.")
         
         # 게임 결과 저장
+        logger.info(f"Attempting to save game result: {game_result.dict()}")
         saved_result = save_game_result(db, game_result)
         
-        logger.info(f"Game result submitted: user_id={user_id}, game_type={game_result.game_type}, correct={game_result.is_correct}")
+        logger.info(f"Game result saved successfully: result_id={saved_result.id}, user_id={user_id}, game_type={game_result.game_type}, correct={game_result.is_correct}")
         
         return create_response({
             "message": "게임 결과가 성공적으로 저장되었습니다.",
@@ -35,6 +49,7 @@ async def submit_game_result(
         
     except Exception as e:
         logger.error(f"Error submitting game result: {e}")
+        logger.error(f"Request data: {game_result.dict() if hasattr(game_result, 'dict') else str(game_result)}")
         raise HTTPException(status_code=500, detail=f"게임 결과 저장에 실패했습니다: {str(e)}")
 
 @router.get("/results/{game_type}", description="사용자의 게임 결과 조회")

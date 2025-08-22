@@ -42,7 +42,7 @@ async def get_user_info_from_user_service(user_id: int):
     """User Service에서 사용자 정보 가져오기"""
     import httpx
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"http://localhost:8000/users/{user_id}")
+        response = await client.get(f"http://user-service:8000/users/{user_id}")
         if response.status_code == 200:
             return response.json()
         return {"role": "senior"}  # 기본값
@@ -54,7 +54,7 @@ async def get_stories_for_senior(db: Session, senior_id: int):
     # 1. 시니어의 보호자 목록 가져오기
     async with httpx.AsyncClient() as client:
         # 특정 시니어의 보호자 목록을 가져오기
-        response = await client.get(f"http://localhost:8000/users/{senior_id}/guardians")
+        response = await client.get(f"http://user-service:8000/users/{senior_id}/guardians")
         if response.status_code == 200:
             guardians_data = response.json()
             guardian_ids = [guardian['id'] for guardian in guardians_data]
